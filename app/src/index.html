@@ -1,0 +1,29 @@
+<html>
+  
+  <head>
+    <meta charset="UTF-8" />
+    <title>tcp-mon</title>
+    <link rel="stylesheet" href="../../node_modules/semantic-ui-css/semantic.min.css" />
+  </head>
+  
+  <body>
+    <div id="tcpmon" class="container"></div>
+  </body>
+  <script>
+    import React from 'react';
+    import ReactDOM from 'react-dom';
+    import Tcpmon from './Tcpmon.jsx';
+    ReactDOM.render(
+      <Tcpmon/>,
+      document.getElementById('tcpmon')
+    );
+    if (typeof module === 'object') {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+  <!-- Insert this line after script imports -->
+  <script>
+      if (window.module) module = window.module;
+  </script>
+  </html>

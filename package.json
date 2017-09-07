@@ -1,0 +1,21 @@
+{
+  "name": "tcp-mon",
+  "version": "1.0.0",
+  "description": "app to monitor tcp connections in windows",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ./app/src"
+  },
+  "author": "ajb",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^1.7.5",
+    "electron-prebuilt-compile": "^1.7.5",
+    "node-netstat": "^1.4.2",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "semantic-ui-css": "^2.2.12",
+    "semantic-ui-react": "^0.72.0"
+  }
+}
