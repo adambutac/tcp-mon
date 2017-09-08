@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Dropdown, Menu, Segment, Table } from 'semantic-ui-react';
+import _ from 'underscore';
+import { Button, Menu, Search, Segment, Table } from 'semantic-ui-react';
 
 import Netstat from 'node-netstat';
 
@@ -8,8 +9,9 @@ class Tcpmon extends React.Component {
     super(props);
     this.state = {
       stats: [],
+      portOptions: [],
       stderr: '',
-      serverPort: 10011,
+      serverPort: '',
       serverPortConnectionCount: 0,
       isRunning: false,
     }
@@ -17,6 +19,7 @@ class Tcpmon extends React.Component {
 
   run() {
     let stats = [];
+    let portOptions = [];
     this.setState({ isRunning: true });
 
     Netstat({
@@ -25,9 +28,20 @@ class Tcpmon extends React.Component {
       done: () => {
         this.setState({ stats });        
         this.setState({ isRunning: false });
+        this.setState({ portOptions })
       }
     }, (data) => {
-      stats.push(data);
+      /* map by local port */
+      const { port } = data.local;
+      if(!stats[port]){
+        portOptions.push({
+          key:port,
+          value: port,
+          text: port });
+        stats[port] = data;
+        stats[port].count = 0;
+      }
+      stats[port].count++;
     });
   }
 
@@ -35,35 +49,22 @@ class Tcpmon extends React.Component {
     this.setState({ isRunning: false });
   }
 
-  changeServerPort(serverPort) {
-    console.log(serverPort);
-    this.setState({ serverPort });
-    const { stats } = this.state
-    let serverPortConnectionCount = stats.filter(row => {
-      return row.local.port == serverPort;
-    }).length;
-
-    this.setState({ serverPortConnectionCount });
-  }
-
-  getPortOptions() {
-    const { stats } = this.state;
-    const set = new Set(stats.map(row => {
-      return row.local.port;
-    }));
-    console.log([...set]);
+  filter(col, regex) {
+    stats.filter(row => {
+      if(!row[col])  
+        return false;
+      else 
+        return /regex/i.test(row[col]);
+    })
   }
 
   render() {
-    const { stats, stderr, isRunning, serverPort, serverPortConnectionCount } = this.state;
-    const portOptions = this.getPortOptions();
+    const { isLoading, stats, stderr, isRunning, serverPort, serverPortConnectionCount, portOptions } = this.state;
 
     return <div>
       <Button content="run" loading={isRunning} onClick={() => this.run()} />
       <strong> {serverPortConnectionCount} </strong> Established Connections on port 
-      <Menu compact>
-        <Dropdown scrolling options={portOptions} onChange={e => this.changeServerPort(e.target.value)}/>
-      </Menu>
+
       <Table striped>
         <Table.Header>
           <Table.Row>
