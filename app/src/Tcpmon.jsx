@@ -1,8 +1,16 @@
 import React from 'react';
-import { Button, Dimmer, Input, Loader, Menu, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Input, Label, Loader, Menu, Table } from 'semantic-ui-react';
 
 import Netstat from 'node-netstat';
 
+/**
+ *            TO-DO
+ * 
+ * renaming active connections
+ *          queued connections
+ * 
+ * show dropped connections somehow
+ */
 class Tcpmon extends React.Component {
   constructor(props) {
     super(props);
@@ -12,72 +20,67 @@ class Tcpmon extends React.Component {
       stats: [],
       stderr: '',
       connectionCount: 0,
-      largestConnectionCount: 0,
       backlog: 0,
-      largestBacklog: 0,
       maxTomcatConnections: 1,
+      refreshRate: 10000,
       isRunning: false,
     }
   }
 
-  reset() {
-    this.setState({
-      stats: [],
-      stderr: '',
-      connectionCount: 0,
-      largestConnectionCount: 0,
-      backlog: 0,
-      largestBacklog: 0,
-      maxTomcatConnections: 1,
-      isRunning: false,
-    });
-  }
-
   run() {
     let stats = [];
-    this.setState({ isRunning: true });
 
     Netstat({
       filter: {
         local: {
           port: 10011,
-        },
-        state: "ESTABLISHED"
+        }
       },
       watch: false,
-      done: () => {
+      done: async () => {
+        const { maxTomcatConnections, refreshRate } = this.state;        
         const connectionCount = stats.length;
         const backlog = connectionCount > this.state.maxTomcatConnections ? connectionCount - this.state.maxTomcatConnections : 0;
-        const largestBacklog = backlog > this.state.largestBacklog ? backlog : this.state.largestBacklog;
         this.setState({ stats });
         this.setState({ connectionCount });
         this.setState({ backlog });
-        this.setState({ largestBacklog });
         if(this.state.isRunning) {
-          this.run();
+          await this.sleep(refreshRate);
+          this.run();            
         } 
       }
     }, (data) => {
-      stats.push(data);
+      if(data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT" && data.local.port == 10011)
+        stats.push(data);
     });
+  }
+
+  start() {
+    this.setState({ isRunning: true });
+    this.run();    
   }
 
   stop() {
     this.setState({ isRunning: false });
   }
 
+  sleep(ms) {
+    return new Promise(res => setTimeout(res, ms))
+  }
+
   render() {
-    const { backlog, connectionCount, largestBacklog, isRunning, maxTomcatConnections, stats, stderr } = this.state;
+    const { backlog, connectionCount, isRunning, maxTomcatConnections, refreshRate, stats, stderr } = this.state;
   
     return <div>
       <Menu secondary compact>
-        <Menu.Item name="run" disabled={isRunning} onClick={() => this.run()} />
+        <Menu.Item name="run" disabled={isRunning} onClick={() => this.start()} />
         <Menu.Item name="stop" disabled={!isRunning} onClick={() => this.stop()} />
-        <Menu.Item name="reset" disabled={isRunning} onClick={() => this.reset()} />
-        <Menu.Item >Estab.Connections: {connectionCount} </Menu.Item>
-        <Menu.Item >Max Connections: <Input disabled={isRunning} style={{width: "50px"}} value={maxTomcatConnections} onChange={ e => this.setState({ maxTomcatConnections: e.target.value }) }/> </Menu.Item>
-        <Menu.Item >Backlog Count: { backlog } </Menu.Item>
-        <Menu.Item >Largest Backlog Count: { largestBacklog } </Menu.Item>
+        <Menu.Item ><Input label="Max Connections: " disabled={isRunning} value={maxTomcatConnections} onChange={ e => this.setState({ maxTomcatConnections: e.target.value }) }/> </Menu.Item>          
+        <Menu.Item ><Input label="Refresh Rate (ms): " disabled={isRunning} value={refreshRate} onChange={ e => this.setState({ refreshRate: e.target.value }) }/> </Menu.Item>          
+      </Menu>
+      <Menu secondary compact>
+        <Menu.Item >Active: {connectionCount}</Menu.Item>
+        <Menu.Item >Waiting: {backlog} </Menu.Item>
       </Menu>
 
       <Table striped>
