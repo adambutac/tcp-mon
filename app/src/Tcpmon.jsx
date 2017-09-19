@@ -5,10 +5,6 @@ import Netstat from 'node-netstat';
 
 /**
  *            TO-DO
- * 
- * renaming active connections
- *          queued connections
- * 
  * show dropped connections somehow
  */
 class Tcpmon extends React.Component {
@@ -24,6 +20,7 @@ class Tcpmon extends React.Component {
       maxTomcatConnections: 1,
       refreshRate: 10000,
       isRunning: false,
+      localPort: 10011,
     }
   }
 
@@ -33,7 +30,7 @@ class Tcpmon extends React.Component {
     Netstat({
       filter: {
         local: {
-          port: 10011,
+          port: this.state.localPort,
         }
       },
       watch: false,
@@ -44,8 +41,8 @@ class Tcpmon extends React.Component {
         this.setState({ stats });
         this.setState({ connectionCount });
         this.setState({ backlog });
+        await this.sleep(refreshRate);
         if(this.state.isRunning) {
-          await this.sleep(refreshRate);
           this.run();            
         } 
       }
@@ -69,12 +66,13 @@ class Tcpmon extends React.Component {
   }
 
   render() {
-    const { backlog, connectionCount, isRunning, maxTomcatConnections, refreshRate, stats, stderr } = this.state;
+    const { backlog, connectionCount, isRunning, localPort, maxTomcatConnections, refreshRate, stats, stderr } = this.state;
   
     return <div>
       <Menu secondary compact>
         <Menu.Item name="run" disabled={isRunning} onClick={() => this.start()} />
         <Menu.Item name="stop" disabled={!isRunning} onClick={() => this.stop()} />
+        <Menu.Item ><Input label="Local Port: " disabled={isRunning} value={localPort} onChange={ e => this.setState({ localPort: e.target.value }) }/> </Menu.Item>                    
         <Menu.Item ><Input label="Max Connections: " disabled={isRunning} value={maxTomcatConnections} onChange={ e => this.setState({ maxTomcatConnections: e.target.value }) }/> </Menu.Item>          
         <Menu.Item ><Input label="Refresh Rate (ms): " disabled={isRunning} value={refreshRate} onChange={ e => this.setState({ refreshRate: e.target.value }) }/> </Menu.Item>          
       </Menu>
