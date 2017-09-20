@@ -1,5 +1,6 @@
 const Netstat = require('node-netstat');
 const fs = require('fs');
+const EOL = require('os').EOL;
 
 function main(args) {
   if(!fs.statSync('./logs').isDirectory()) {
@@ -22,7 +23,7 @@ function main(args) {
           const backlogCount = connectionCount > maxTomcatConnections ? connectionCount - maxTomcatConnections : 0;
           const date = new Date();
           const currentLog = `./logs/${date.toISOString().split('T')[0]}.log`;
-          fs.appendFileSync(currentLog, `${date.toISOString()}, ${connectionCount}, ${backlogCount}`);
+          fs.appendFileSync(currentLog, `${date.toISOString()}, ${connectionCount}, ${backlogCount}${EOL}`);
           console.log(`${currentLog} => ${date.toISOString()}, ${connectionCount}, ${backlogCount}`);
         }
       }, (data) => {
@@ -30,7 +31,7 @@ function main(args) {
           connectionCount++;
         }
       });
-    }, interval)
+    }, interval);
   }
 }
 
