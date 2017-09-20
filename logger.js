@@ -3,7 +3,7 @@ const fs = require('fs');
 const EOL = require('os').EOL;
 
 function main(args) {
-  if(!fs.statSync('./logs').isDirectory()) {
+  if(!fs.existsSync('./logs')) {
     fs.mkdirSync('./logs');
   }
 
