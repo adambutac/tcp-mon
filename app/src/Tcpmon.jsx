@@ -3,10 +3,6 @@ import { Button, Dimmer, Input, Label, Loader, Menu, Table } from 'semantic-ui-r
 
 import Netstat from 'node-netstat';
 
-/**
- *            TO-DO
- * show dropped connections somehow
- */
 class Tcpmon extends React.Component {
   constructor(props) {
     super(props);
@@ -28,11 +24,6 @@ class Tcpmon extends React.Component {
     let stats = [];
 
     Netstat({
-      filter: {
-        local: {
-          port: this.state.localPort,
-        }
-      },
       watch: false,
       done: async () => {
         const { maxTomcatConnections, refreshRate } = this.state;        
@@ -47,7 +38,7 @@ class Tcpmon extends React.Component {
         } 
       }
     }, (data) => {
-      if(data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT" && data.local.port == 10011)
+      if((data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT") && data.local.port == this.state.localPort)
         stats.push(data);
     });
   }
@@ -69,16 +60,16 @@ class Tcpmon extends React.Component {
     const { backlog, connectionCount, isRunning, localPort, maxTomcatConnections, refreshRate, stats, stderr } = this.state;
   
     return <div>
-      <Menu secondary compact>
+      <Menu secondary>
         <Menu.Item name="run" disabled={isRunning} onClick={() => this.start()} />
         <Menu.Item name="stop" disabled={!isRunning} onClick={() => this.stop()} />
+        <Menu.Item >Active connections:&nbsp;<b>{connectionCount}</b></Menu.Item>
+        <Menu.Item >Waiting for a connection:&nbsp;<b>{backlog}</b> </Menu.Item>
+      </Menu>
+      <Menu secondary>
         <Menu.Item ><Input label="Local Port: " disabled={isRunning} value={localPort} onChange={ e => this.setState({ localPort: e.target.value }) }/> </Menu.Item>                    
         <Menu.Item ><Input label="Max Connections: " disabled={isRunning} value={maxTomcatConnections} onChange={ e => this.setState({ maxTomcatConnections: e.target.value }) }/> </Menu.Item>          
         <Menu.Item ><Input label="Refresh Rate (ms): " disabled={isRunning} value={refreshRate} onChange={ e => this.setState({ refreshRate: e.target.value }) }/> </Menu.Item>          
-      </Menu>
-      <Menu secondary compact>
-        <Menu.Item >Active: {connectionCount}</Menu.Item>
-        <Menu.Item >Waiting: {backlog} </Menu.Item>
       </Menu>
 
       <Table striped>
