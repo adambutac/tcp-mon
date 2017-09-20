@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Dimmer, Input, Label, Loader, Menu, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Input, Label, Loader, Menu, Popup, Table } from 'semantic-ui-react';
 
 import Netstat from 'node-netstat';
 
@@ -63,8 +63,12 @@ class Tcpmon extends React.Component {
       <Menu secondary>
         <Menu.Item name="run" disabled={isRunning} onClick={() => this.start()} />
         <Menu.Item name="stop" disabled={!isRunning} onClick={() => this.stop()} />
-        <Menu.Item >Active connections:&nbsp;<b>{connectionCount}</b></Menu.Item>
-        <Menu.Item >Waiting for a connection:&nbsp;<b>{backlog}</b> </Menu.Item>
+        <Popup
+          trigger={<Menu.Item >Active connections:&nbsp;<b>{connectionCount}</b></Menu.Item>}
+          content="Total number of connections. Includes connections in the ESTABLISHED and CLOSE-WAIT state."/>
+        <Popup
+          trigger={<Menu.Item >Waiting for a connection:&nbsp;<b>{backlog}</b> </Menu.Item>}
+          content="Number of connections in the backlog (acceptCount in tomcat) queue. Simply the difference between Max Connections and Active Connections."/>
       </Menu>
       <Menu secondary>
         <Menu.Item ><Input label="Local Port: " disabled={isRunning} value={localPort} onChange={ e => this.setState({ localPort: e.target.value }) }/> </Menu.Item>                    
