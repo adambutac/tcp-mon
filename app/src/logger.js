@@ -24,8 +24,8 @@ function main(args) {
         done: () => {
           const backlogCount = connectionCount > maxTomcatConnections ? connectionCount - maxTomcatConnections : 0;
           const currentLog = `${dir}${Timestamp('YYYY-MM-DD')}.log`;
-          fs.appendFileSync(currentLog, `${Timestamp('YYYY-MM-DDT:HH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}${EOL}`);
-          console.log(`${currentLog} => ${Timestamp('YYYY-MM-DDT:HH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}`);
+          fs.appendFileSync(currentLog, `${Timestamp('YYYY-MM-DDTHH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}${EOL}`);
+          console.log(`${currentLog} => ${Timestamp('YYYY-MM-DDTHH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}`);
         }
       }, (data) => {
         if (data.local.port == localPort && (data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT")){
