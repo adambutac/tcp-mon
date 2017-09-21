@@ -3,8 +3,8 @@ const fs = require('fs');
 const EOL = require('os').EOL;
 
 function main(args) {
-  const dir = 'C:/Development/STAR/webapps/ROOT/src/main/webapp/logs/'
-  if(!fs.existsSync('./logs')) {
+  const dir = 'directory-to-logs';
+  if(!fs.existsSync(dir)) {
     return;
   }
 
