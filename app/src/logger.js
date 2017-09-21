@@ -1,9 +1,10 @@
 const Netstat = require('node-netstat');
+const Timestamp = require('time-stamp');
 const fs = require('fs');
 const EOL = require('os').EOL;
 
 function main(args) {
-  const dir = 'directory-to-logs';
+  const dir = 'C:/Development/STAR/webapps/ROOT/src/main/webapp/logs/';
   if(!fs.existsSync(dir)) {
     return;
   }
@@ -22,10 +23,9 @@ function main(args) {
       Netstat({
         done: () => {
           const backlogCount = connectionCount > maxTomcatConnections ? connectionCount - maxTomcatConnections : 0;
-          const date = new Date();
-          const currentLog = `${dir}${date.toLocaleDateString().replace(/\//g, '-')}.log`;
-          fs.appendFileSync(currentLog, `${date.toString()}, ${connectionCount}, ${backlogCount}${EOL}`);
-          console.log(`${currentLog} => ${date.toString()}, ${connectionCount}, ${backlogCount}`);
+          const currentLog = `${dir}${Timestamp('MM-DD-YYYY')}.log`;
+          fs.appendFileSync(currentLog, `${Timestamp('MM-DD-YYYY:HH:mm:ss')}, ${connectionCount}, ${backlogCount}${EOL}`);
+          console.log(`${currentLog} => ${Timestamp('MM-DD-YYYY:HH:mm:ss')}, ${connectionCount}, ${backlogCount}`);
         }
       }, (data) => {
         if (data.local.port == localPort && (data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT")){
