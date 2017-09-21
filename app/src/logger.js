@@ -23,9 +23,9 @@ function main(args) {
       Netstat({
         done: () => {
           const backlogCount = connectionCount > maxTomcatConnections ? connectionCount - maxTomcatConnections : 0;
-          const currentLog = `${dir}${Timestamp('MM-DD-YYYY')}.log`;
-          fs.appendFileSync(currentLog, `${Timestamp('MM-DD-YYYY:HH:mm:ss')}, ${connectionCount}, ${backlogCount}${EOL}`);
-          console.log(`${currentLog} => ${Timestamp('MM-DD-YYYY:HH:mm:ss')}, ${connectionCount}, ${backlogCount}`);
+          const currentLog = `${dir}${Timestamp('YYYY-MM-DD')}.log`;
+          fs.appendFileSync(currentLog, `${Timestamp('YYYY-MM-DDT:HH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}${EOL}`);
+          console.log(`${currentLog} => ${Timestamp('YYYY-MM-DDT:HH:mm:ss-10:00')}, ${connectionCount}, ${backlogCount}`);
         }
       }, (data) => {
         if (data.local.port == localPort && (data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT")){
