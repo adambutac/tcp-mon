@@ -22,20 +22,15 @@ class Tcpmon extends React.Component {
 
   run() {
     let stats = [];
-
     Netstat({
       watch: false,
-      done: async () => {
+      done: () => {
         const { maxTomcatConnections, refreshRate } = this.state;        
         const connectionCount = stats.length;
         const backlog = connectionCount > this.state.maxTomcatConnections ? connectionCount - this.state.maxTomcatConnections : 0;
         this.setState({ stats });
         this.setState({ connectionCount });
         this.setState({ backlog });
-        await this.sleep(refreshRate);
-        if(this.state.isRunning) {
-          this.run();            
-        } 
       }
     }, (data) => {
       if((data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT") && data.local.port == this.state.localPort)
@@ -44,11 +39,13 @@ class Tcpmon extends React.Component {
   }
 
   start() {
+    const {refreshRate} = this.state;
     this.setState({ isRunning: true });
-    this.run();    
+    this.interval = setInterval(() => this.run(), refreshRate);
   }
 
   stop() {
+    clearInterval(this.interval);    
     this.setState({ isRunning: false });
   }
 
