@@ -3,8 +3,9 @@ const fs = require('fs');
 const EOL = require('os').EOL;
 
 function main(args) {
+  const dir = 'C:/Development/STAR/webapps/ROOT/src/main/webapp/logs/'
   if(!fs.existsSync('./logs')) {
-    fs.mkdirSync('./logs');
+    return;
   }
 
   if(args[0] == '-h' || !args[0] || !args[1]) {
@@ -22,9 +23,9 @@ function main(args) {
         done: () => {
           const backlogCount = connectionCount > maxTomcatConnections ? connectionCount - maxTomcatConnections : 0;
           const date = new Date();
-          const currentLog = `./logs/${date.toISOString().split('T')[0]}.log`;
-          fs.appendFileSync(currentLog, `${date.toISOString()}, ${connectionCount}, ${backlogCount}${EOL}`);
-          console.log(`${currentLog} => ${date.toISOString()}, ${connectionCount}, ${backlogCount}`);
+          const currentLog = `${dir}${date.toLocaleDateString().replace(/\//g, '-')}.log`;
+          fs.appendFileSync(currentLog, `${date.toString()}, ${connectionCount}, ${backlogCount}${EOL}`);
+          console.log(`${currentLog} => ${date.toString()}, ${connectionCount}, ${backlogCount}`);
         }
       }, (data) => {
         if (data.local.port == localPort && (data.state == "ESTABLISHED" || data.state == "CLOSE_WAIT")){
