@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ./app/src",
-    "log": "node ./app/src/logger.js 443 600"
+    "log": "node ./app/src/logger.js C:/Development/STAR/webapps/networking/src/main/webapp/public/logs/ 443 600"
   },
   "author": "ajb",
   "license": "ISC",
